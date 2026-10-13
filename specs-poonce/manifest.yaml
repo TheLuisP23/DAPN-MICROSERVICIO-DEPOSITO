@@ -1,0 +1,84 @@
+# =============================================================================
+# deposito-service · manifest de specs y módulos
+# -----------------------------------------------------------------------------
+# Este archivo cumple dos funciones:
+#   1. Índice de specs: qué spec describe cada parte del servicio (lo leen
+#      los agentes de .claude/agents y las personas).
+#   2. Configuración del Cargador (src/core/cargador.js): qué módulos de
+#      extensión se enchufan al pipeline al arrancar.
+#
+# Para desactivar un módulo: activo: false. No se toca el core.
+# El ORDEN dentro de cada hueco lo define el propio módulo (campo `orden`
+# en su index.js), no este archivo.
+#
+# IMPORTANTE: el Dockerfile debe copiar specs/manifest.yaml (o definir
+# MANIFEST_PATH), porque el Cargador lo lee en tiempo de ejecución.
+# =============================================================================
+
+servicio: deposito-service
+version_specs: "0.2"
+responsable: equipo-deposito
+
+# -----------------------------------------------------------------------------
+# Módulos de extensión (enchufables en el pipeline de depósito)
+# -----------------------------------------------------------------------------
+modulos:
+  - id: limites-por-canal
+    tipo: validador
+    activo: true
+    ruta: src/modules/limites-por-canal
+    spec: 20-features/limites-por-canal.md
+
+  - id: conversion-moneda
+    tipo: transformador
+    activo: true
+    ruta: src/modules/conversion-moneda
+    spec: 20-features/conversion-moneda.md
+
+  - id: alerta-uif
+    tipo: post-proceso
+    activo: true
+    ruta: src/modules/alerta-uif
+    spec: 20-features/alerta-uif.md
+
+# -----------------------------------------------------------------------------
+# Features base (no enchufables: siempre están activas)
+# -----------------------------------------------------------------------------
+features:
+  - id: registrar-deposito
+    ruta: src/modules/registrar-deposito
+    spec: 20-features/registrar-deposito.md
+  - id: consultar-deposito
+    ruta: src/modules/consultar-deposito
+    spec: 20-features/consultar-deposito.md
+  - id: historial-depositos
+    ruta: src/modules/historial-depositos
+    spec: 20-features/historial-depositos.md
+
+# -----------------------------------------------------------------------------
+# Índice completo de specs (orden de lectura recomendado)
+# -----------------------------------------------------------------------------
+specs:
+  core:
+    - 00-core/00-convenciones.md
+    - 00-core/01-arquitectura.md
+    - 00-core/02-pipeline-y-modulos.md
+    - 00-core/03-modelo-de-datos.md
+    - 00-core/04-estados-deposito.md
+    - 00-core/05-errores.md
+    - 00-core/06-configuracion-y-observabilidad.md
+    - 00-core/adr-001-postgresql.md
+  transversales:
+    - 10-transversales/seguridad.md
+    - 10-transversales/idempotencia.md
+    - 10-transversales/auditoria.md
+  features:
+    - 20-features/registrar-deposito.md
+    - 20-features/consultar-deposito.md
+    - 20-features/historial-depositos.md
+    - 20-features/limites-por-canal.md
+    - 20-features/conversion-moneda.md
+    - 20-features/alerta-uif.md
+  integraciones:
+    - 30-integraciones/billetera.md
+    - 30-integraciones/usuario.md
