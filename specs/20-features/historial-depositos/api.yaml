@@ -1,0 +1,52 @@
+openapi: 3.0.3
+info:
+  title: historial-depositos
+  version: 1.0.0
+servers:
+  - url: /api/v1
+security:
+  - bearerAuth: []
+paths:
+  /cuentas/{numero}/depositos:
+    get:
+      summary: Historial de depósitos de una cuenta
+      operationId: historialDepositos
+      parameters:
+        - name: numero
+          in: path
+          required: true
+          schema:
+            $ref: '../../00-core/contrato-base.yaml#/components/schemas/NumeroCuenta'
+        - { name: pagina, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+        - { name: tamano, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+        - name: estado
+          in: query
+          schema:
+            $ref: '../../00-core/contrato-base.yaml#/components/schemas/EstadoDeposito'
+        - { name: desde, in: query, schema: { type: string, format: date-time } }
+        - { name: hasta, in: query, schema: { type: string, format: date-time } }
+        - $ref: '../../00-core/contrato-base.yaml#/components/parameters/CorrelationId'
+      responses:
+        '200':
+          description: Lista paginada, más reciente primero
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  datos:
+                    type: array
+                    items:
+                      $ref: '../../00-core/contrato-base.yaml#/components/schemas/Deposito'
+                  pagina: { type: integer }
+                  tamano: { type: integer }
+                  total: { type: integer }
+        '400': { $ref: '../../00-core/contrato-base.yaml#/components/responses/Error' }
+        '401': { $ref: '../../00-core/contrato-base.yaml#/components/responses/Error' }
+        '403': { $ref: '../../00-core/contrato-base.yaml#/components/responses/Error' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -1,0 +1,8 @@
+# limites-por-canal no agrega endpoints.
+# Solo agrega un código de error posible a POST /depositos:
+#   422 LIMITE_CANAL_EXCEDIDO (definido en 00-core/contrato-base.yaml)
+openapi: 3.0.3
+info:
+  title: limites-por-canal
+  version: 1.0.0
+paths: {}

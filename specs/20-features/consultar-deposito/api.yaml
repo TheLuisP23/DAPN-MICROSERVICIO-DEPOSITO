@@ -1,0 +1,35 @@
+openapi: 3.0.3
+info:
+  title: consultar-deposito
+  version: 1.0.0
+servers:
+  - url: /api/v1
+security:
+  - bearerAuth: []
+paths:
+  /depositos/{id}:
+    get:
+      summary: Consultar un depósito
+      operationId: consultarDeposito
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '../../00-core/contrato-base.yaml#/components/parameters/CorrelationId'
+      responses:
+        '200':
+          description: Depósito encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '../../00-core/contrato-base.yaml#/components/schemas/Deposito'
+        '400': { $ref: '../../00-core/contrato-base.yaml#/components/responses/Error' }
+        '401': { $ref: '../../00-core/contrato-base.yaml#/components/responses/Error' }
+        '404': { $ref: '../../00-core/contrato-base.yaml#/components/responses/Error' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

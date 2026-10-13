@@ -1,0 +1,109 @@
+# Piezas compartidas por todos los api.yaml de las features.
+# Cada feature las referencia con: $ref: '../../00-core/contrato-base.yaml#/components/...'
+openapi: 3.0.3
+info:
+  title: deposito-service - contrato base
+  version: 1.0.0
+servers:
+  - url: /api/v1
+paths: {}
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 8
+        maxLength: 100
+    CorrelationId:
+      name: X-Correlation-Id
+      in: header
+      required: false
+      schema:
+        type: string
+
+  schemas:
+    NumeroCuenta:
+      type: string
+      pattern: '^\d{4}-\d{4}-\d{6}$'
+      example: "0011-0123-456789"
+    Moneda:
+      type: string
+      enum: [PEN, USD]
+    Canal:
+      type: string
+      enum: [AGENTE, VENTANILLA, APP]
+    EstadoDeposito:
+      type: string
+      enum: [PENDIENTE, PROCESANDO, COMPLETADO, FALLIDO]
+
+    Deposito:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        cuentaDestino: { $ref: '#/components/schemas/NumeroCuenta' }
+        monto: { type: number }
+        moneda: { $ref: '#/components/schemas/Moneda' }
+        canal: { $ref: '#/components/schemas/Canal' }
+        referencia: { type: string }
+        estado: { $ref: '#/components/schemas/EstadoDeposito' }
+        creadoEn: { type: string, format: date-time }
+        actualizadoEn: { type: string, format: date-time }
+        extensiones:
+          type: object
+          description: >
+            Datos que agregan las features enchufables, cada una bajo su propio id.
+            Ej. extensiones.conversion-moneda. Si la feature está inactiva, su clave no aparece.
+          additionalProperties: true
+
+    Error:
+      type: object
+      required: [codigo, mensaje]
+      properties:
+        codigo:
+          type: string
+          description: Uno de los códigos del catálogo de abajo
+        mensaje: { type: string }
+        correlationId: { type: string }
+
+  responses:
+    Error:
+      description: Error con formato común
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+# Catálogo de códigos de error (x- = extensión informativa, no la usa OpenAPI)
+x-codigos-error:
+  # 400
+  FORMATO_INVALIDO: JSON mal formado o campos con tipo incorrecto
+  IDEMPOTENCY_KEY_REQUERIDA: Falta o es inválido el header Idempotency-Key
+  # 401
+  TOKEN_REQUERIDO: Falta el token
+  TOKEN_INVALIDO: Token mal firmado o con issuer/audience incorrectos
+  TOKEN_EXPIRADO: Token vencido
+  # 403
+  SIN_PERMISO: El rol o la cuenta no permiten la operación
+  # 404
+  DEPOSITO_NO_ENCONTRADO: No existe un depósito con ese id
+  # 409
+  IDEMPOTENCY_KEY_REUTILIZADA: Clave usada antes con otros datos
+  SOLICITUD_EN_PROCESO: La solicitud original con esa clave aún se procesa
+  # 422
+  MONTO_INVALIDO: Monto <= 0 o con más de 2 decimales
+  CUENTA_NO_ENCONTRADA: La cuenta destino no existe
+  CUENTA_INACTIVA: La cuenta destino no está activa
+  MONEDA_NO_SOPORTADA: Moneda distinta y conversión no disponible
+  LIMITE_CANAL_EXCEDIDO: El monto supera el máximo del canal (feature limites-por-canal)
+  # 500 / 502
+  ERROR_INTERNO: Error no controlado
+  BILLETERA_NO_DISPONIBLE: billetera-service falló o no respondió

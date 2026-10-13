@@ -1,0 +1,6 @@
+# alerta-uif no agrega endpoints ni cambia ninguna respuesta.
+openapi: 3.0.3
+info:
+  title: alerta-uif
+  version: 1.0.0
+paths: {}

@@ -1,0 +1,17 @@
+# conversion-moneda no agrega endpoints.
+# Agrega a la respuesta de POST /depositos y GET /depositos/{id}:
+#   extensiones.conversion-moneda (cuando hubo conversión)
+openapi: 3.0.3
+info:
+  title: conversion-moneda
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    ExtensionConversionMoneda:
+      type: object
+      properties:
+        monedaCuenta:
+          $ref: '../../00-core/contrato-base.yaml#/components/schemas/Moneda'
+        tipoCambio: { type: number }
+        montoAcreditado: { type: number }

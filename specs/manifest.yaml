@@ -1,0 +1,53 @@
+# Índice de specs activas de deposito-service.
+# Lo leen los agentes (para saber qué specs usar) y el Cargador (para saber qué módulos enchufar).
+# Cada id coincide EXACTAMENTE con el nombre de su carpeta.
+# Para desactivar una feature: estado: inactivo. No se toca nada más.
+version: 1
+servicio: deposito-service
+
+# Siempre activos. Se aplican como middlewares en este orden.
+transversales:
+  - id: seguridad
+    orden: 1
+  - id: auditoria
+    orden: 2
+  - id: idempotencia
+    orden: 3
+    aplica_a: [POST]
+
+features:
+  - id: registrar-deposito
+    estado: activo
+    tipo: endpoint
+
+  - id: consultar-deposito
+    estado: activo
+    tipo: endpoint
+
+  - id: historial-depositos
+    estado: activo
+    tipo: endpoint
+
+  - id: limites-por-canal
+    estado: activo
+    tipo: validador
+    extiende: registrar-deposito
+    orden: 10
+
+  - id: conversion-moneda
+    estado: activo
+    tipo: transformador
+    extiende: registrar-deposito
+    orden: 10
+
+  - id: alerta-uif
+    estado: activo
+    tipo: post-proceso
+    extiende: registrar-deposito
+    orden: 10
+
+integraciones:
+  - id: billetera
+    usado_por: [registrar-deposito]
+  - id: usuario
+    usado_por: [seguridad]

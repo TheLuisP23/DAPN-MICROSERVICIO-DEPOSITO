@@ -1,0 +1,60 @@
+openapi: 3.0.3
+info:
+  title: registrar-deposito
+  version: 1.0.0
+servers:
+  - url: /api/v1
+security:
+  - bearerAuth: []
+paths:
+  /depositos:
+    post:
+      summary: Registrar un depósito
+      operationId: registrarDeposito
+      parameters:
+        - $ref: '../../00-core/contrato-base.yaml#/components/parameters/IdempotencyKey'
+        - $ref: '../../00-core/contrato-base.yaml#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cuentaDestino, monto, moneda, canal]
+              properties:
+                cuentaDestino:
+                  $ref: '../../00-core/contrato-base.yaml#/components/schemas/NumeroCuenta'
+                monto:
+                  type: number
+                  minimum: 0
+                  exclusiveMinimum: true
+                  multipleOf: 0.01
+                moneda:
+                  $ref: '../../00-core/contrato-base.yaml#/components/schemas/Moneda'
+                canal:
+                  $ref: '../../00-core/contrato-base.yaml#/components/schemas/Canal'
+                referencia:
+                  type: string
+                  maxLength: 140
+      responses:
+        '201':
+          description: Depósito completado (o respuesta original repetida por idempotencia)
+          headers:
+            Idempotency-Replayed:
+              schema: { type: boolean }
+          content:
+            application/json:
+              schema:
+                $ref: '../../00-core/contrato-base.yaml#/components/schemas/Deposito'
+        '400': { $ref: '../../00-core/contrato-base.yaml#/components/responses/Error' }
+        '401': { $ref: '../../00-core/contrato-base.yaml#/components/responses/Error' }
+        '403': { $ref: '../../00-core/contrato-base.yaml#/components/responses/Error' }
+        '409': { $ref: '../../00-core/contrato-base.yaml#/components/responses/Error' }
+        '422': { $ref: '../../00-core/contrato-base.yaml#/components/responses/Error' }
+        '502': { $ref: '../../00-core/contrato-base.yaml#/components/responses/Error' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
