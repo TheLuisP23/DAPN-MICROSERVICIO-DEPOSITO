@@ -1,5 +1,5 @@
 # Módulos activos de deposito-service.
-# Lo leen los agentes (para saber qué specs aplicar) y el Cargador (SPEC-01) al arrancar.
+# Lo leen los agentes (para saber qué specs aplicar) y el cargador (SPEC-06) al arrancar.
 # - id: igual al nombre de la carpeta en src/modules/
 # - spec: archivo de specs-v2/ que la describe
 # - orden: posición dentro de su hueco del pipeline (menor = antes). Solo para extensiones.
@@ -10,31 +10,36 @@ servicio: deposito-service
 
 features:
   - id: registrar-deposito
-    spec: 05-registrar-deposito.md
+    spec: 07-registrar-deposito.md
     estado: activo
     tipo: endpoint
 
-  - id: consultar-depositos
-    spec: 06-consultar-depositos.md
+  - id: consultar-deposito
+    spec: 08-consultar-deposito.md
+    estado: activo
+    tipo: endpoint
+
+  - id: historial-depositos
+    spec: 09-historial-depositos.md
     estado: activo
     tipo: endpoint
 
   - id: limites-por-canal
-    spec: 07-limites-por-canal.md
+    spec: 10-limites-por-canal.md
     estado: activo
     tipo: validador
     extiende: registrar-deposito
     orden: 10
 
   - id: conversion-moneda
-    spec: 08-conversion-moneda.md
+    spec: 11-conversion-moneda.md
     estado: activo
     tipo: transformador
     extiende: registrar-deposito
     orden: 10
 
   - id: alerta-uif
-    spec: 09-alerta-uif.md
+    spec: 12-alerta-uif.md
     estado: activo
     tipo: post-proceso
     extiende: registrar-deposito
@@ -42,8 +47,8 @@ features:
 
 integraciones:
   - id: billetera
-    spec: 10-integraciones.md
-    usado_por: [registrar-deposito, consultar-depositos]
+    spec: 02-integraciones.md
+    usado_por: [registrar-deposito, consultar-deposito, historial-depositos]
   - id: usuario
-    spec: 10-integraciones.md
+    spec: 02-integraciones.md
     usado_por: [seguridad]
